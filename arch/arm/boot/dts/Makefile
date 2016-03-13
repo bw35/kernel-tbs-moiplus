@@ -168,6 +168,7 @@ dtb-$(CONFIG_MACH_KIRKWOOD) += \
 	kirkwood-laplug.dtb \
 	kirkwood-lschlv2.dtb \
 	kirkwood-lsxhl.dtb \
+	kirkwood-moiplus.dtb \
 	kirkwood-mplcec4.dtb \
 	kirkwood-mv88f6281gtw-ge.dtb \
 	kirkwood-nas2big.dtb \

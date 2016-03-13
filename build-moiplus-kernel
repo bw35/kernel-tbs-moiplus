@@ -1,0 +1,49 @@
+#!/bin/sh
+#
+# Build Linux kernel for TBS MOI+
+#
+# 13.03.2016 / peter.horn<at>bluewin.ch
+
+# Adjust to your tool chain prefix
+export CROSS_COMPILE=arm-none-linux-gnueabi-
+
+# Specify toolchain path if required
+TOOLCHAIN_PATH=
+
+# --- End of tuneable settings ---
+
+# Add toolchain path if specified
+if [ ! -z $TOOLCHAIN_PATH ]; then
+    export PATH=$TOOLCHAIN_PATH:$PATH
+fi
+
+# Copy configuration template
+if [ ! -e .config ]; then
+    cp moiplus.config .config
+fi
+
+# Create output directory
+if [ ! -d output ]; then
+    mkdir output
+fi
+
+export ARCH=arm
+
+
+# Make sure the zImage gets rebuilt when the dts changes
+rm arch/arm/boot/zImage
+
+# Build the kernel up to the zImage and create the device tree blobs
+make zImage dtbs
+
+# Append the device tree blob to kernel because the stock u-boot doesn't support loading it separately 
+cat arch/arm/boot/dts/kirkwood-moiplus.dtb >> arch/arm/boot/zImage
+
+# Create u-boot bootable image
+make ARCH=arm LOADADDR=8000 uImage
+
+# Copy and rename the kernel image to the file name the bootloader expects for a kernel update
+cp arch/arm/boot/uImage output/MOI2921_k.bin
+
+# Finally build the modules collect them for integration into the root file system
+make INSTALL_MOD_PATH=output/modules modules modules_install
